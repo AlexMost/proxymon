@@ -1,18 +1,15 @@
 {
-  "name": "@evo/awesome-proxy",
+  "name": "proxymon",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/proxy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "active-handles": "^1.1.0",
     "cheerio": "^1.0.0-rc.2",
-    "request": "^2.85.0",
-    "rxjs": "^5.5.10",
-    "why-is-node-running": "^2.0.2"
+    "request": "^2.85.0"
   }
 }
