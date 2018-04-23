@@ -19,7 +19,7 @@ function startUpdate() {
     }
 }
 
-async function getNProxies(n=30) {
+async function getNProxies(n=10) {
     const randProxies = [];
     if (!proxies.length) {
         startUpdate();

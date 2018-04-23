@@ -13,7 +13,7 @@ async function bench() {
         method: "GET",
         uri:
           "https://booking.uz.gov.ua/train_search/station/?term=%D0%9A%D0%B8%D1%97%D0%B2"
-      }, 30);
+      }, 10);
       const d2 = new Date();
       const opTime = (d2 - d1) / 1000;
       time += opTime;
@@ -33,4 +33,6 @@ async function bench() {
 
 process.on("uncaughtException", function(err) {});
 
+bench();
+bench();
 bench();

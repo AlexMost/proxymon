@@ -1,7 +1,7 @@
 const request = require("request");
 const { getNProxies } = require("./proxy-list");
 
-async function tryReq(options, connections=30, retryTime=2000, retryTimes=10, idx=0) {
+async function tryReq(options, connections=10, retryTime=2000, retryTimes=10, idx=0) {
   return new Promise(async (resolve, reject) => {
     const requests = [];
     const randProxies = await getNProxies(connections);
