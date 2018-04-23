@@ -1,7 +1,7 @@
 const request = require("request");
 const { getNProxies } = require("./proxy-list");
 
-async function tryReq(options, connections=10, retryTime=2000, retryTimes=10, idx=0) {
+async function tryReq(options, connections=10, timeout=5000) {
   return new Promise(async (resolve, reject) => {
     const requests = [];
     const randProxies = await getNProxies(connections);
@@ -12,10 +12,10 @@ async function tryReq(options, connections=10, retryTime=2000, retryTimes=10, id
         r.end();
         r.destroy();
       });
-    }, 3000);
+    }, timeout);
     for (let i = 0; i < randProxies.length; i++) {
       const proxy = randProxies[i];
-      const newOpts = Object.assign({ proxy, timeout: 3000 }, options);
+      const newOpts = Object.assign({ proxy, timeout }, options);
       const req = request(newOpts, (err, resp) => {
         if (!err) {
           resolve(resp.body);
@@ -26,7 +26,6 @@ async function tryReq(options, connections=10, retryTime=2000, retryTimes=10, id
           });
           resp.destroy();
         }
-        req.abort();
         req.end();
         req.destroy();
       });
@@ -39,8 +38,6 @@ async function tryReq(options, connections=10, retryTime=2000, retryTimes=10, id
       req.on('uncaughtException', clear);
       req.on('error', clear);
       req.on('timeout', clear);
-      req.end();
-      req.destroy();
     }
   });
 }

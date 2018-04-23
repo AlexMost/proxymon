@@ -12,18 +12,10 @@ function fetchProxy() {
       .map((i, el) => protocol($(el.children[6]).text()) + $(el.children[0]).text() + ':' + $(el.children[1]).text())
       .get();
       resp.destroy();
+      reqInst.end();
+      reqInst.destroy();
       resolve(addresses);
     });
-    reqInst.on('connection', function (socket) {
-      console.log('connected...');
-      socket.on('error', (err) => {
-        reqInst.end();
-        reqInst.destroy();
-        console.log('proper socket error handling');
-      });
-    });
-    reqInst.end();
-    reqInst.destroy();
   });
 }
 
