@@ -20,18 +20,26 @@ async function lightPOST(proxy, formData) {
   };
 
   return new Promise((resolve, reject) => {
-    const req = https.request(options, res => {
+    let req = null;
+    const timeout = setTimeout(() => {
+        req.abort();
+        req.destroy();
+        reject('timeout');
+    }, 5000);
+    req = https.request(options, res => {
         let data = '';
         res.setEncoding("utf8");
         res.on("data", chunk => {
             data += chunk;
         });
         res.on("end", () => {
-          resolve(data);
+            clearTimeout(timeout);
+            resolve(data);
         });
       });
     
       req.on("error", e => {
+        clearTimeout(timeout);
         reject(e);
       });
       // write data to request body
