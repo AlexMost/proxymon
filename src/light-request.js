@@ -1,17 +1,17 @@
 const https = require("https");
+const url = require("url");
 const querystring = require("querystring");
-var HttpsProxyAgent = require('https-proxy-agent');
+var HttpsProxyAgent = require("https-proxy-agent");
 
-async function lightPOST(proxy, formData) {
-  const postData = querystring.stringify(formData);
+function formPOST(options, cb) {
+  const postData = querystring.stringify(options.formData);
+  var agent = new HttpsProxyAgent(options.proxy);
+  const urlData = url.parse(options.uri);
 
-  var agent = new HttpsProxyAgent(proxy);
-
-  const options = {
-    hostname: "booking.uz.gov.ua",
-    port: 443,
+  const reqOpts = {
+    hostname: urlData.hostname,
     method: "POST",
-    path: "/ru/train_search/",
+    path: urlData.path,
     agent: agent,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -19,33 +19,45 @@ async function lightPOST(proxy, formData) {
     }
   };
 
-  return new Promise((resolve, reject) => {
-    let req = null;
-    const timeout = setTimeout(() => {
-        req.abort();
-        req.destroy();
-        reject('timeout');
-    }, 5000);
-    req = https.request(options, res => {
-        let data = '';
-        res.setEncoding("utf8");
-        res.on("data", chunk => {
-            data += chunk;
-        });
-        res.on("end", () => {
-            clearTimeout(timeout);
-            resolve(data);
-        });
+  let req = null;
+  const timeout = setTimeout(() => {
+    req.abort();
+    req.destroy();
+    cb("timeout");
+  }, options.timeout);
+
+  req = https.request(reqOpts, res => {
+    if (res.statusCode === 200) {
+      let data = "";
+      res.on("data", chunk => {
+        data += chunk;
       });
-    
-      req.on("error", e => {
+      res.on("end", () => {
+        cb(null, data); // return data immediately
         clearTimeout(timeout);
-        reject(e);
+        req.destroy();
       });
-      // write data to request body
-      req.write(postData);
-      req.end();
+    } else {
+      res.destroy();
+      req.destroy();
+      cb(`Bad status ${res.statusCode}`);
+    }
   });
+
+  req.on("error", e => {
+    clearTimeout(timeout);
+    cb(e);
+  });
+  req.on("uncaughtException", e => {
+    clearTimeout(timeout);
+    cb(e);
+  });
+
+  // write data to request body
+  req.write(postData);
+  req.end();
+
+  return req;
 }
 
-module.exports = { lightPOST };
+module.exports = { formPOST };

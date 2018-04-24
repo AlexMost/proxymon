@@ -1,4 +1,4 @@
-const { tryReq } = require("../src/proxy");
+const { tryReq, tryFromPOST } = require("../src/proxy");
 // [{"from":2200001,"fromTitle":"Киев-Пассажирский","to":2204001,"toTitle":"Харьков-Пасс","date":"2018-05-05","chatId":-279719792,"time":"00:00","stop":false,"options":{"trains":["724К"]},"id":"5612"}]
 async function bench() {
   const start = new Date();
@@ -9,17 +9,24 @@ async function bench() {
   let time = 0;
   for (let i = 0; i <= total; i++) {
     try {
-      await tryReq({
-        method: "POST",
-        formData: {
-            from: 2200001,
-            to: 2204001,
-            date: "2018-05-05",
-            time: "00:00"
-        },
-        uri:
-          "https://booking.uz.gov.ua/ru/train_search"
-      }, 10);
+      const formData = {
+        from: 2200001,
+        to: 2204001,
+        date: "2018-05-05",
+        time: "00:00"
+      };
+    //   await tryReq(
+    //     {
+    //       method: "POST",
+    //       formData,
+    //       uri: "https://booking.uz.gov.ua/ru/train_search"
+    //     },
+    //     20
+    //   );
+      const data = await tryFromPOST({
+          formData,
+          uri: "https://booking.uz.gov.ua/ru/train_search/"
+      }, 20, 4000);
       const d2 = new Date();
       const opTime = (d2 - d1) / 1000;
       time += opTime;
@@ -27,7 +34,7 @@ async function bench() {
       d1 = new Date();
       success += 1;
     } catch (err) {
-      console.error("rejected by timeout");
+      console.error("rejected", err);
     }
   }
   const end = new Date();

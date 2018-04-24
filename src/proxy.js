@@ -1,13 +1,45 @@
 const request = require("request");
 const { getNProxies } = require("./proxy-list");
+const { formPOST } = require("./light-request");
 
-async function tryReq(options, connections=10, timeout=5000) {
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+async function tryFromPOST(options, connections = 10, timeout = 5000) {
+  return new Promise(async (resolve, reject) => {
+    const requests = [];
+    const randProxies = await getNProxies(connections);
+    const timeoutId = setTimeout(() => {
+      reject("timeout");
+      requests.forEach(r => {
+        r.abort();
+        r.destroy();
+      });
+    }, timeout);
+    for (let i = 0; i < randProxies.length; i++) {
+      const proxy = randProxies[i];
+      const newOpts = Object.assign({ proxy, timeout }, options);
+      const req = formPOST(newOpts, (err, data) => {
+        if (!err) {
+          requests.forEach(r => {
+            r.abort();
+            r.destroy();
+          });
+          clearTimeout(timeoutId);
+          resolve(data);
+        }
+      });
+      requests.push(req);
+    }
+  });
+}
+
+async function tryReq(options, connections = 10, timeout = 5000) {
   return new Promise(async (resolve, reject) => {
     const requests = [];
     const randProxies = await getNProxies(connections);
     setTimeout(() => {
       reject();
-      requests.forEach((r) => {
+      requests.forEach(r => {
         r.abort();
         r.end();
         r.destroy();
@@ -19,8 +51,7 @@ async function tryReq(options, connections=10, timeout=5000) {
       const req = request(newOpts, (err, resp) => {
         if (!err) {
           resolve(resp.body);
-          console.log('works >>>>', proxy);
-          requests.forEach((r) => {
+          requests.forEach(r => {
             r.abort();
             r.end();
             r.destroy();
@@ -35,12 +66,12 @@ async function tryReq(options, connections=10, timeout=5000) {
         req.abort();
         req.end();
         req.destroy();
-      }
-      req.on('uncaughtException', clear);
-      req.on('error', clear);
-      req.on('timeout', clear);
+      };
+      req.on("uncaughtException", clear);
+      req.on("error", clear);
+      req.on("timeout", clear);
     }
   });
 }
 
-module.exports = { tryReq };
+module.exports = { tryReq, tryFromPOST };
