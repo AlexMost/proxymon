@@ -19,6 +19,7 @@ async function tryReq(options, connections=10, timeout=5000) {
       const req = request(newOpts, (err, resp) => {
         if (!err) {
           resolve(resp.body);
+          console.log('works >>>>', proxy);
           requests.forEach((r) => {
             r.abort();
             r.end();
