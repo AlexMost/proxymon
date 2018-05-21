@@ -16,6 +16,11 @@ function startUpdate() {
         setInterval(async () => {
             const updProxies = await fetchProxy();
             const goodProxies = proxies.filter((p) => proxyWeights[p] > 0);
+            Object.keys(proxyWeights).forEach((k) => {
+                if (proxyWeights[k] < 0) {
+                    delete proxyWeights[k];
+                }
+            });
             proxies = [...new Set(goodProxies.concat(updProxies))];
         }, updInterval);
     }
