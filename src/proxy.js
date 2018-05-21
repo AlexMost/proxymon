@@ -1,5 +1,5 @@
 const request = require("request");
-const { getNProxies } = require("./proxy-list");
+const { getNProxies, niceProxy, badProxy } = require("./proxy-list");
 const { formPOST } = require("./light-request");
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -24,8 +24,11 @@ async function tryFromPOST(options, connections = 10, timeout = 5000) {
             r.abort();
             r.destroy();
           });
+          niceProxy(proxy);
           clearTimeout(timeoutId);
           resolve(data);
+        } else {
+          badProxy(proxy);
         }
       });
       requests.push(req);

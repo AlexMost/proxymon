@@ -14,13 +14,25 @@ function startUpdate() {
     if (!startedUpdate) {
         startedUpdate = true;
         setInterval(async () => {
-            proxies = await fetchProxy();
+            const updProxies = await fetchProxy();
+            const goodProxies = proxies.filter((p) => proxyWeights[p] > 0);
+            proxies = [...new Set(goodProxies.concat(updProxies))];
         }, updInterval);
     }
 }
 
+function sort(proxies) {
+    return proxies.sort((p1, p2) => {
+        const p1W = proxyWeights[p1] || 0;
+        const p2W = proxyWeights[p2] || 0;
+        return p2W - p1W;
+    });
+}
+
 async function getNProxies(n=10) {
-    const randProxies = [];
+    let randProxies = [];
+    const sorted = sort(proxies);
+    randProxies = randProxies.concat(sorted.slice(0, n/2));
     if (!proxies.length) {
         startUpdate();
         if (awaitProxy) {
@@ -30,18 +42,28 @@ async function getNProxies(n=10) {
             proxies = await awaitProxy;
         }
     }
-    for (let i = 0; i <= n; i++) {
+    for (let i = 0; i <= n/2; i++) {
         randProxies.push(proxies[getRandomInt(proxies.length)]);
     }
     return randProxies;
 }
 
 function niceProxy(proxy) {
-
+    if (proxyWeights[proxy]) {
+        proxyWeights[proxy] += 1;
+    } else {
+        proxyWeights[proxy] = 1;
+    }
+    console.log(`Nice proxy ${proxy} ${proxyWeights[proxy]}`);
 }
 
 function badProxy(proxy) {
-
+    if (proxyWeights[proxy]) {
+        proxyWeights[proxy] -= 1;
+    } else {
+        proxyWeights[proxy] = -1;
+    }
+    // console.log(`Bad proxy ${proxy} ${proxyWeights[proxy]}`);
 }
 
 function setUpdInterval(interval) {
