@@ -3,7 +3,7 @@ const fetchProxy = require("./free-proxy-list");
 let proxies = [];
 let proxyWeights = {};
 let startedUpdate = false;
-let updInterval = 1000 * 60 * 5;
+let updInterval = 1000 * 60 * 30;
 
 let awaitProxy = null;
 function getRandomInt(max) {
@@ -22,6 +22,7 @@ function startUpdate() {
                 }
             });
             proxies = [...new Set(goodProxies.concat(updProxies))];
+            console.log(`Proxies updated ${proxy} ${proxyWeights[proxy]}`);
         }, updInterval);
     }
 }
