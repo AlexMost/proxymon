@@ -22,7 +22,7 @@ function startUpdate() {
                 }
             });
             proxies = [...new Set(goodProxies.concat(updProxies))];
-            console.log(`Proxies updated ${proxy} ${proxyWeights[proxy]}`);
+            console.log(`Proxies were updated. new - ${updProxies.length}. good - ${goodProxies.length}`);
         }, updInterval);
     }
 }
@@ -54,20 +54,20 @@ async function getNProxies(n=10) {
     return randProxies;
 }
 
-function niceProxy(proxy) {
+function niceProxy(proxy, score = 1) {
     if (proxyWeights[proxy]) {
-        proxyWeights[proxy] += 1;
+        proxyWeights[proxy] += score;
     } else {
-        proxyWeights[proxy] = 1;
+        proxyWeights[proxy] = score;
     }
     console.log(`Nice proxy ${proxy} ${proxyWeights[proxy]}`);
 }
 
-function badProxy(proxy) {
+function badProxy(proxy, score) {
     if (proxyWeights[proxy]) {
-        proxyWeights[proxy] -= 1;
+        proxyWeights[proxy] -= score/2;
     } else {
-        proxyWeights[proxy] = -1;
+        proxyWeights[proxy] = -score/2;
     }
     // console.log(`Bad proxy ${proxy} ${proxyWeights[proxy]}`);
 }

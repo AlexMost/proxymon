@@ -19,3 +19,6 @@ async function bench() {
 }
 
 bench();
+bench();
+bench();
+bench();

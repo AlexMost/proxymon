@@ -7,7 +7,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 async function tryFromPOST(options, connections = 10, timeout = 5000) {
   return new Promise(async (resolve, reject) => {
     const requests = [];
+    const k = (timeout / 1000);
     const randProxies = await getNProxies(connections);
+    const start = new Date();
     const timeoutId = setTimeout(() => {
       reject("timeout");
       requests.forEach(r => {
@@ -24,11 +26,13 @@ async function tryFromPOST(options, connections = 10, timeout = 5000) {
             r.abort();
             r.destroy();
           });
-          niceProxy(proxy);
+          const end = new Date();
+          const diffTime = (end - start) / 1000;
+          niceProxy(proxy, k - diffTime);
           clearTimeout(timeoutId);
           resolve(data);
         } else {
-          badProxy(proxy);
+          badProxy(proxy, k);
         }
       });
       requests.push(req);
