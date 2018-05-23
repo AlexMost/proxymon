@@ -76,10 +76,10 @@ function niceProxy(proxy, score = 1) {
 function badProxy(proxy, score) {
     if (proxyWeights[proxy]) {
         if (proxyWeights[proxy] > -BOUNDARY_SCORE) {
-            proxyWeights[proxy] -= score;
+            proxyWeights[proxy] -= score/3;
         }
     } else {
-        proxyWeights[proxy] = -score;
+        proxyWeights[proxy] = -score/3;
     }
     // console.log(`Bad proxy ${proxy} ${proxyWeights[proxy]}`);
 }

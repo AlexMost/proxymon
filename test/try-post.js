@@ -1,4 +1,4 @@
-const { postForm } = require("../src/proxy");
+const { postForm, tryFromPOST } = require("../src/proxy");
 const formData = {
     from: 2200001,
     to: 2204001,
@@ -8,7 +8,7 @@ const formData = {
 
 async function bench() {
     const d1 = new Date();
-    const data = await postForm({
+    const data = await tryFromPOST({
         formData,
         uri: "https://booking.uz.gov.ua/ru/train_search/"
     });
@@ -18,7 +18,4 @@ async function bench() {
     console.log(data);
 }
 
-bench();
-bench();
-bench();
 bench();

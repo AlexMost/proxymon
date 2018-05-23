@@ -32,7 +32,9 @@ async function executeRequest(reqFun, options, connections, timeout) {
           clearTimeout(timeoutId);
           resolve(data);
         } else {
-          badProxy(proxy, k);
+          if (err !== 'timeout') {
+            badProxy(proxy, k);
+          }
         }
       });
       requests.push(req);
