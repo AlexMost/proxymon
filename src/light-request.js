@@ -29,11 +29,6 @@ function formPOST(options, cb) {
   }
 
   let req = null;
-  const timeout = setTimeout(() => {
-    req.abort();
-    req.destroy();
-    cb("timeout");
-  }, options.timeout);
 
   req = https.request(reqOpts, res => {
     if (res.statusCode === 200) {
@@ -43,7 +38,6 @@ function formPOST(options, cb) {
       });
       res.on("end", () => {
         cb(null, data); // return data immediately
-        clearTimeout(timeout);
         req.destroy();
       });
     } else {
@@ -53,12 +47,18 @@ function formPOST(options, cb) {
     }
   });
 
+  req.on('socket', function (socket) {
+    socket.setTimeout(options.timeout);  
+    socket.on('timeout', function() {
+        req.abort();
+    });
+  });
+
   req.on("error", e => {
-    clearTimeout(timeout);
     cb(e);
   });
+
   req.on("uncaughtException", e => {
-    clearTimeout(timeout);
     cb(e);
   });
 
@@ -94,11 +94,6 @@ function lightGET(options, cb) {
   }
 
   let req = null;
-  const timeout = setTimeout(() => {
-    req.abort();
-    req.destroy();
-    cb("timeout");
-  }, options.timeout);
 
   req = https.request(reqOpts, res => {
     if (res.statusCode === 200) {
@@ -108,7 +103,6 @@ function lightGET(options, cb) {
       });
       res.on("end", () => {
         cb(null, data); // return data immediately
-        clearTimeout(timeout);
         req.destroy();
       });
     } else {
@@ -118,12 +112,17 @@ function lightGET(options, cb) {
     }
   });
 
+  req.on('socket', function (socket) {
+    socket.setTimeout(options.timeout);  
+    socket.on('timeout', function() {
+        req.abort();
+    });
+  });
+
   req.on("error", e => {
-    clearTimeout(timeout);
     cb(e);
   });
   req.on("uncaughtException", e => {
-    clearTimeout(timeout);
     cb(e);
   });
   

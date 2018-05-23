@@ -8,7 +8,7 @@ const formData = {
 
 async function bench() {
     const d1 = new Date();
-    const data = await tryFromPOST({
+    const data = await postForm({
         formData,
         uri: "https://booking.uz.gov.ua/ru/train_search/"
     });
