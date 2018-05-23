@@ -4,7 +4,8 @@ let proxies = [];
 let proxyWeights = {};
 let startedUpdate = false;
 let updInterval = 1000 * 60 * 30;
-
+let IS_GOOD_SCORE = 200;
+const BOUNDARY_SCORE = IS_GOOD_SCORE * 2;
 let awaitProxy = null;
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -37,8 +38,14 @@ function sort(proxies) {
 
 async function getNProxies(n=10) {
     let randProxies = [];
+    const halfN = n/2;
     const sorted = sort(proxies);
-    randProxies = randProxies.concat(sorted.slice(0, n/2));
+    const goodProxies = sorted.filter((p) => proxyWeights[p] > IS_GOOD_SCORE);
+    if (goodProxies.length) {
+        const goodProxy = goodProxies[getRandomInt(goodProxies.length)];
+        return [goodProxy];
+    }
+    randProxies = randProxies.concat(sorted.slice(0, halfN));
     if (!proxies.length) {
         startUpdate();
         if (awaitProxy) {
@@ -56,16 +63,20 @@ async function getNProxies(n=10) {
 
 function niceProxy(proxy, score = 1) {
     if (proxyWeights[proxy]) {
-        proxyWeights[proxy] += score;
+        if (proxyWeights[proxy] < BOUNDARY_SCORE) {
+            proxyWeights[proxy] += score;
+        }
     } else {
         proxyWeights[proxy] = score;
     }
-    console.log(`Nice proxy ${proxy} ${proxyWeights[proxy]}`);
+    console.log(`Nice proxy ${proxy} weight: ${proxyWeights[proxy]} score: ${score}`);
 }
 
 function badProxy(proxy, score) {
     if (proxyWeights[proxy]) {
-        proxyWeights[proxy] -= score/2;
+        if (proxyWeights[proxy] > -BOUNDARY_SCORE) {
+            proxyWeights[proxy] -= score/2;
+        }
     } else {
         proxyWeights[proxy] = -score/2;
     }
