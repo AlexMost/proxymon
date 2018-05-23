@@ -11,7 +11,7 @@ async function executeRequest(reqFun, options, connections, timeout) {
     const randProxies = await getNProxies(connections);
     const start = new Date();
     const timeoutId = setTimeout(() => {
-      request.forEach((r) => r.abort());
+      requests.forEach((r) => r.abort());
     }, timeout);
     for (let i = 0; i < randProxies.length; i++) {
       const proxy = randProxies[i];
