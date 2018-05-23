@@ -10,6 +10,9 @@ async function executeRequest(reqFun, options, connections, timeout) {
     const k = (timeout / 1000);
     const randProxies = await getNProxies(connections);
     const start = new Date();
+    const timeoutId = setTimeout(() => {
+      request.forEach((r) => r.abort());
+    }, timeout);
     for (let i = 0; i < randProxies.length; i++) {
       const proxy = randProxies[i];
       const newOpts = Object.assign({ proxy, timeout }, options);
@@ -22,9 +25,14 @@ async function executeRequest(reqFun, options, connections, timeout) {
           const end = new Date();
           const diffTime = (end - start) / 1000;
           niceProxy(proxy, k - diffTime);
+          clearTimeout(timeoutId);
           resolve(data);
         } else {
-          badProxy(proxy, k);
+          if (err.code !== 'ECONNRESET') {
+            // console.log(err.code || err, proxy);
+            badProxy(proxy, k);
+          }
+
         }
       });
       requests.push(req);

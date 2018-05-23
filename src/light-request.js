@@ -50,6 +50,7 @@ function formPOST(options, cb) {
   req.on('socket', function (socket) {
     socket.setTimeout(options.timeout);  
     socket.on('timeout', function() {
+        cb('request timeout');
         req.abort();
     });
   });
