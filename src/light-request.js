@@ -1,15 +1,21 @@
 const https = require("https");
+const http = require("http");
 const url = require("url");
 const querystring = require("querystring");
 var HttpsProxyAgent = require("https-proxy-agent");
 
 function formPOST(options, cb) {
   const postData = querystring.stringify(options.formData);
-  var agent = new HttpsProxyAgent(options.proxy);
+  const proxyData = url.parse(options.proxy);
+  var agent = new HttpsProxyAgent({
+    host: proxyData.hostname,
+    port: proxyData.port,
+    secureProxy: proxyData.protocol === "https:"
+  });
   const urlData = url.parse(options.uri);
 
   const reqOpts = {
-    hostname: urlData.hostname,
+    host: urlData.hostname,
     method: "POST",
     path: urlData.path,
     agent: agent,
@@ -18,6 +24,9 @@ function formPOST(options, cb) {
       "Content-Length": Buffer.byteLength(postData)
     }
   };
+  if (urlData.port) {
+    reqOpts['port'] = urlData.port;
+  }
 
   let req = null;
   const timeout = setTimeout(() => {
@@ -64,16 +73,25 @@ function formPOST(options, cb) {
 function lightGET(options, cb) {
   var agent;
   if (options.proxy) {
-    agent = new HttpsProxyAgent(options.proxy);
+    const proxyData = url.parse(options.proxy);
+    var agent = new HttpsProxyAgent({
+    host: proxyData.hostname,
+    port: proxyData.port,
+    secureProxy: proxyData.protocol === "https:"
+    });
   }
   const urlData = url.parse(options.uri);
 
   const reqOpts = {
-    hostname: urlData.hostname,
+    host: urlData.hostname,
     method: "GET",
     path: urlData.path,
     agent,
   };
+
+  if (urlData.port) {
+    reqOpts['port'] = urlData.port;
+  }
 
   let req = null;
   const timeout = setTimeout(() => {
