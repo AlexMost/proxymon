@@ -5,7 +5,7 @@ let proxyWeights = {};
 let startedUpdate = false;
 let updInterval = 1000 * 60 * 30;
 let IS_GOOD_SCORE = 200;
-const BOUNDARY_SCORE = IS_GOOD_SCORE + 100;
+const BOUNDARY_SCORE = IS_GOOD_SCORE * 2;
 let awaitProxy = null;
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -40,8 +40,9 @@ async function getNProxies(n=10) {
     let randProxies = [];
     const halfN = n/2;
     const sorted = sort(proxies);
+    const hasBoundary = sorted.find((p) => proxyWeights[p] >= BOUNDARY_SCORE);
     const goodProxies = sorted.filter((p) => proxyWeights[p] > IS_GOOD_SCORE);
-    if (goodProxies.length) {
+    if (hasBoundary && goodProxies.length) {
         const goodProxy = goodProxies[getRandomInt(goodProxies.length)];
         return [goodProxy];
     }
