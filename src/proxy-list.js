@@ -5,7 +5,7 @@ let proxyWeights = {};
 let startedUpdate = false;
 let updInterval = 1000 * 60 * 30;
 let IS_GOOD_SCORE = 200;
-const BOUNDARY_SCORE = IS_GOOD_SCORE * 2;
+const BOUNDARY_SCORE = IS_GOOD_SCORE + 100;
 let awaitProxy = null;
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -75,10 +75,10 @@ function niceProxy(proxy, score = 1) {
 function badProxy(proxy, score) {
     if (proxyWeights[proxy]) {
         if (proxyWeights[proxy] > -BOUNDARY_SCORE) {
-            proxyWeights[proxy] -= score/2;
+            proxyWeights[proxy] -= score;
         }
     } else {
-        proxyWeights[proxy] = -score/2;
+        proxyWeights[proxy] = -score;
     }
     // console.log(`Bad proxy ${proxy} ${proxyWeights[proxy]}`);
 }
